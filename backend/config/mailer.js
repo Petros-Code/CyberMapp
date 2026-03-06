@@ -1,20 +1,25 @@
-import nodemailer from 'nodemailer'
 import dotenv from 'dotenv'
+import { Resend } from 'resend'
 
 dotenv.config()
 
-const transporter = nodemailer.createTransport({
-  host: process.env.MAIL_HOST,
-  port: Number(process.env.MAIL_PORT),
-  secure: false, //587 - false
-  auth: {
-    user: process.env.MAIL_USER,
-    pass: process.env.MAIL_PASS,
-  },
-})
+const resend = new Resend(process.env.RESEND_API_KEY)
 
-transporter.verify()
-  .then(() => console.log('✅ SMTP connecté'))
-  .catch(err => console.warn('⚠️ SMTP non connecté :', err.message))
+const transporter = {
+  async sendMail({ to, subject, html, from }) {
+    const fromAddress = from || `"CyberMapp" <${process.env.MAIL_USER}>`
+
+    const { error } = await resend.emails.send({
+      from: fromAddress,
+      to,
+      subject,
+      html,
+    })
+
+    if (error) {
+      throw new Error(error.message || 'Erreur envoi email Resend')
+    }
+  },
+}
 
 export default transporter
