@@ -1,8 +1,5 @@
-CREATE DATABASE IF NOT EXISTS cybermapp_cybermappdb
   CHARACTER SET utf8mb4
   COLLATE utf8mb4_unicode_ci;
-
-USE cybermapp_cybermappdb;
 
 -- ─── Table users ──────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS users (
