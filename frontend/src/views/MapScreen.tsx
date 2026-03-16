@@ -22,6 +22,7 @@ export default function MapScreen() {
       const data = await mapController.getUsersOnMap()
       setUsers(data)
     } catch (e) {
+      console.error('MapScreen error:', e)
       setError('Impossible de charger la carte')
     } finally {
       setLoading(false)
@@ -49,17 +50,16 @@ export default function MapScreen() {
       <MapView
         style={styles.map}
         initialRegion={{
-          latitude: users[0]?.latitude ?? 48.8566,
-          longitude: users[0]?.longitude ?? 2.3522,
+          latitude: Number(users[0]?.latitude) || 48.8566,
+          longitude: Number(users[0]?.longitude) || 2.3522,
           latitudeDelta: 0.05,
           longitudeDelta: 0.05,
         }}
-        showsUserLocation={true}
       >
         {users.map((user) => (
           <Marker
             key={user.user_id}
-            coordinate={{ latitude: user.latitude, longitude: user.longitude }}
+            coordinate={{ latitude: Number(user.latitude), longitude: Number(user.longitude) }}
             title={user.username}
           />
         ))}
