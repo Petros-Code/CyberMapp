@@ -11,7 +11,7 @@ const router = express.Router();
 
 router.get("/", authenticate, getAllLocations);
 router.get("/:userId", authenticate, getUserLocation);
-router.post("/update/:userId", authenticate, updateLocation);
-router.delete("/delete/:userId", authenticate, deleteLocation);
+router.post("/update", authenticate, updateLocation);
+router.delete("/delete", authenticate, deleteLocation);
 
 export default router;

@@ -33,7 +33,7 @@ export const getUserLocation = async (req, res) => {
 
 export const updateLocation = async (req, res) => {
   try {
-    const { userId } = req.params;
+    const userId = req.user.id;
     const { latitude, longitude } = req.body;
 
     if (!latitude || !longitude) {
@@ -60,7 +60,7 @@ export const updateLocation = async (req, res) => {
 
 export const deleteLocation = async (req, res) => {
   try {
-    const { userId } = req.params;
+    const userId = req.user.id;
 
     const deleted = await deleteLocationByUserId(userId);
 
