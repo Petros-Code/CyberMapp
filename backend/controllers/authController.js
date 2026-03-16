@@ -26,7 +26,7 @@ export const register = async (req, res) => {
             html: `
                 <h2>Bienvenue sur CyberMapp !</h2>
                 <p>Clique sur le lien ci-dessous pour vérifier ton email :</p>
-                <a href="${process.env.CLIENT_URL}/verify/${verify_token}">
+                <a href="${process.env.APP_URL}/api/auth/verify/${verify_token}">
                     Vérifier mon email
                 </a>
             `,
