@@ -1,4 +1,5 @@
 import pool from "../config/db.js";
+import { decrypt } from "../utils/crypto.js";
 
 export const findLocationByUserId = async (userId) => {
   try {
@@ -49,9 +50,13 @@ export const deleteLocationByUserId = async (userId) => {
 
 export const findAllLocations = async () => {
   try {
-    const [rows] = await pool.query("SELECT * FROM locations");
+    const [rows] = await pool.query(`
+      SELECT l.user_id, l.latitude, l.longitude, l.updated_at, u.username
+      FROM locations l
+      JOIN users u ON l.user_id = u.id
+    `);
 
-    return rows;
+    return rows.map((row) => ({ ...row, username: decrypt(row.username) }));
   } catch (error) {
     console.error("Erreur findAllLocations :", error.message);
     throw error;
