@@ -1,6 +1,9 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { NavigationContainer, useNavigation } from "@react-navigation/native";
-import { createNativeStackNavigator, NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { NavigationContainer } from "@react-navigation/native";
+import {
+	createNativeStackNavigator,
+	type NativeStackNavigationProp,
+} from "@react-navigation/native-stack";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
 import { StyleSheet } from "react-native";
@@ -22,7 +25,7 @@ type RootStackParamList = {
 	Home: { user: User; token: string };
 };
 
-type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
+export type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -49,11 +52,10 @@ const loadStoredSession = async (
 	}
 };
 
-function AppContent() {
+function AppNavigator() {
 	const [token, setToken] = useState<string | null>(null);
 	const [user, setUser] = useState<User | null>(null);
 	const [loading, setLoading] = useState(true);
-	const navigation = useNavigation<NavigationProp>();
 
 	const handleLoginSuccess = async (authToken: string, userData: User) => {
 		try {
@@ -88,40 +90,38 @@ function AppContent() {
 	return (
 		<SafeAreaView style={styles.container}>
 			<StatusBar style="auto" />
-			<NavigationContainer>
-				<Stack.Navigator screenOptions={{ headerShown: false }}>
-					{token && user ? (
-						<Stack.Screen name="Home">
-							{() => (
-								<HomeScreen
-									username={user.username}
-									email={user.email}
-									onLogout={handleLogout}
+			<Stack.Navigator screenOptions={{ headerShown: false }}>
+				{token && user ? (
+					<Stack.Screen name="Home">
+						{() => (
+							<HomeScreen
+								username={user.username}
+								email={user.email}
+								onLogout={handleLogout}
+							/>
+						)}
+					</Stack.Screen>
+				) : (
+					<>
+						<Stack.Screen name="Login">
+							{({ navigation }) => (
+								<LoginScreen
+									onLoginSuccess={handleLoginSuccess}
+									onNavigateToRegister={() => navigation.navigate("Register")}
 								/>
 							)}
 						</Stack.Screen>
-					) : (
-						<>
-							<Stack.Screen name="Login">
-								{() => (
-									<LoginScreen
-										onLoginSuccess={handleLoginSuccess}
-										onNavigateToRegister={() => navigation.navigate("Register")}
-									/>
-								)}
-							</Stack.Screen>
-							<Stack.Screen name="Register">
-								{() => (
-									<RegisterScreen
-										onRegisterSuccess={() => navigation.navigate("Login")}
-										onNavigateToLogin={() => navigation.navigate("Login")}
-									/>
-								)}
-							</Stack.Screen>
-						</>
-					)}
-				</Stack.Navigator>
-			</NavigationContainer>
+						<Stack.Screen name="Register">
+							{({ navigation }) => (
+								<RegisterScreen
+									onRegisterSuccess={() => navigation.navigate("Login")}
+									onNavigateToLogin={() => navigation.navigate("Login")}
+								/>
+							)}
+						</Stack.Screen>
+					</>
+				)}
+			</Stack.Navigator>
 		</SafeAreaView>
 	);
 }
@@ -129,7 +129,9 @@ function AppContent() {
 export default function App() {
 	return (
 		<SafeAreaProvider>
-			<AppContent />
+			<NavigationContainer>
+				<AppNavigator />
+			</NavigationContainer>
 		</SafeAreaProvider>
 	);
 }

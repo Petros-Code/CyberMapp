@@ -4,6 +4,7 @@ import {
 	Alert,
 	KeyboardAvoidingView,
 	Platform,
+	Pressable,
 	ScrollView,
 	StyleSheet,
 	Text,
@@ -12,7 +13,7 @@ import {
 	View,
 } from "react-native";
 
-const API_URL = "http://localhost:3000/api/auth";
+const API_URL = "http://192.168.5.149:3000/api/auth";
 
 interface LoginScreenProps {
 	onLoginSuccess: (
@@ -29,6 +30,7 @@ export default function LoginScreen({
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [loading, setLoading] = useState(false);
+	const [passwordVisible, setPasswordVisible] = useState(false);
 
 	const handleLogin = async () => {
 		if (!email.trim() || !password.trim()) {
@@ -57,6 +59,10 @@ export default function LoginScreen({
 		} finally {
 			setLoading(false);
 		}
+	};
+
+	const togglePasswordVisibility = () => {
+		setPasswordVisible((v) => !v);
 	};
 
 	return (
@@ -88,14 +94,22 @@ export default function LoginScreen({
 
 					<View style={styles.inputContainer}>
 						<Text style={styles.label}>Mot de passe</Text>
-						<TextInput
-							style={styles.input}
-							value={password}
-							onChangeText={setPassword}
-							placeholder="••••••••"
-							placeholderTextColor="#999"
-							secureTextEntry
-						/>
+						<View style={styles.passwordRow}>
+							<TextInput
+								style={styles.passwordInput}
+								value={password}
+								onChangeText={setPassword}
+								placeholder={passwordVisible ? "Mot de passe" : "••••••••"}
+								placeholderTextColor="#999"
+								secureTextEntry={!passwordVisible}
+							/>
+							<Pressable
+								onPress={togglePasswordVisibility}
+								style={styles.eyeButton}
+							>
+								<Text>{passwordVisible ? "🙈" : "👁️"}</Text>
+							</Pressable>
+						</View>
 					</View>
 
 					<TouchableOpacity
@@ -172,6 +186,24 @@ const styles = StyleSheet.create({
 		fontSize: 16,
 		borderWidth: 1,
 		borderColor: "#1a4a7a",
+	},
+	passwordRow: {
+		flexDirection: "row",
+		alignItems: "center",
+		backgroundColor: "#0f3460",
+		borderRadius: 8,
+		borderWidth: 1,
+		borderColor: "#1a4a7a",
+	},
+	passwordInput: {
+		flex: 1,
+		padding: 14,
+		color: "#fff",
+		fontSize: 16,
+	},
+	eyeButton: {
+		paddingHorizontal: 12,
+		paddingVertical: 8,
 	},
 	button: {
 		backgroundColor: "#00d9ff",
