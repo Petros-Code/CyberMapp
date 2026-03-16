@@ -12,6 +12,8 @@ export default function MapScreen() {
 
   useEffect(() => {
     loadMap()
+    const interval = setInterval(loadMap, 60000)
+    return () => clearInterval(interval)
   }, [])
 
   async function loadMap() {
