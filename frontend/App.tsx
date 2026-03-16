@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { NavigationContainer } from "@react-navigation/native";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { NavigationContainer, useNavigation } from "@react-navigation/native";
+import { createNativeStackNavigator, NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
 import { StyleSheet } from "react-native";
@@ -8,6 +8,7 @@ import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import Loader from "./components/Loader";
 import HomeScreen from "./screens/HomeScreen";
 import LoginScreen from "./screens/LoginScreen";
+import RegisterScreen from "./screens/RegisterScreen";
 
 interface User {
 	id: number;
@@ -17,8 +18,11 @@ interface User {
 
 type RootStackParamList = {
 	Login: undefined;
+	Register: undefined;
 	Home: { user: User; token: string };
 };
+
+type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -49,6 +53,7 @@ function AppContent() {
 	const [token, setToken] = useState<string | null>(null);
 	const [user, setUser] = useState<User | null>(null);
 	const [loading, setLoading] = useState(true);
+	const navigation = useNavigation<NavigationProp>();
 
 	const handleLoginSuccess = async (authToken: string, userData: User) => {
 		try {
@@ -96,14 +101,24 @@ function AppContent() {
 							)}
 						</Stack.Screen>
 					) : (
-						<Stack.Screen name="Login">
-							{() => (
-								<LoginScreen
-									onLoginSuccess={handleLoginSuccess}
-									onNavigateToRegister={() => {}}
-								/>
-							)}
-						</Stack.Screen>
+						<>
+							<Stack.Screen name="Login">
+								{() => (
+									<LoginScreen
+										onLoginSuccess={handleLoginSuccess}
+										onNavigateToRegister={() => navigation.navigate("Register")}
+									/>
+								)}
+							</Stack.Screen>
+							<Stack.Screen name="Register">
+								{() => (
+									<RegisterScreen
+										onRegisterSuccess={() => navigation.navigate("Login")}
+										onNavigateToLogin={() => navigation.navigate("Login")}
+									/>
+								)}
+							</Stack.Screen>
+						</>
 					)}
 				</Stack.Navigator>
 			</NavigationContainer>
