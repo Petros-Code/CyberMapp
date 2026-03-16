@@ -5,12 +5,13 @@ import {
   deleteLocation,
   getAllLocations,
 } from "../controllers/locationController.js";
+import { authenticate } from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
 
-router.get("/", getAllLocations);
-router.get("/:userId", getUserLocation);
-router.post("/update/:userId", updateLocation);
-router.delete("/delete/:userId", deleteLocation);
+router.get("/", authenticate, getAllLocations);
+router.get("/:userId", authenticate, getUserLocation);
+router.post("/update/:userId", authenticate, updateLocation);
+router.delete("/delete/:userId", authenticate, deleteLocation);
 
 export default router;
