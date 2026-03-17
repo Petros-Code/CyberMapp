@@ -7,6 +7,7 @@ import { useEffect } from "react";
 import { StyleSheet } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import Loader from "./src/components/Loader";
+import { ThemeProvider, useTheme } from "./src/contexts/ThemeContext";
 import HomeScreen from "./src/screens/HomeScreen";
 import LoginScreen from "./src/screens/LoginScreen";
 import MapScreen from "./src/screens/MapScreen";
@@ -32,17 +33,19 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<TabParamList>();
 
 function MainTabs() {
+  const { colors } = useTheme();
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: "#16213e",
-          borderTopColor: "#0f3460",
+          backgroundColor: colors.tabBarBackground,
+          borderTopColor: colors.tabBarBorder,
           borderTopWidth: 1,
         },
-        tabBarActiveTintColor: "#e94560",
-        tabBarInactiveTintColor: "#6b7db3",
+        tabBarActiveTintColor: colors.tabBarActive,
+        tabBarInactiveTintColor: colors.tabBarInactive,
         tabBarIcon: ({ focused, color, size }) => {
           const icons: Record<
             TabParamList[keyof TabParamList] extends undefined
@@ -93,6 +96,7 @@ function MainTabs() {
 
 function AppNavigator() {
   const { token, isLoading, loadSession } = useAuthStore();
+  const { colors } = useTheme();
 
   useEffect(() => {
     loadSession();
@@ -103,7 +107,9 @@ function AppNavigator() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: colors.background }]}
+    >
       <StatusBar style="auto" />
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {token ? (
@@ -135,9 +141,11 @@ function AppNavigator() {
 export default function App() {
   return (
     <SafeAreaProvider>
-      <NavigationContainer>
-        <AppNavigator />
-      </NavigationContainer>
+      <ThemeProvider>
+        <NavigationContainer>
+          <AppNavigator />
+        </NavigationContainer>
+      </ThemeProvider>
     </SafeAreaProvider>
   );
 }
