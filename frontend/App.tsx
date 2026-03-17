@@ -1,18 +1,18 @@
+import { Ionicons } from "@expo/vector-icons";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import { StyleSheet } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
-import Loader from "./components/Loader";
-import HomeScreen from "./screens/HomeScreen";
-import MapScreen from "./screens/MapScreen";
-import ParamsScreen from "./screens/ParamsScreen";
-import ProfileScreen from "./screens/ProfileScreen";
-import LoginScreen from "./screens/LoginScreen";
-import RegisterScreen from "./screens/RegisterScreen";
+import Loader from "./src/components/Loader";
+import HomeScreen from "./src/screens/HomeScreen";
+import LoginScreen from "./src/screens/LoginScreen";
+import MapScreen from "./src/screens/MapScreen";
+import ParamsScreen from "./src/screens/ParamsScreen";
+import ProfileScreen from "./src/screens/ProfileScreen";
+import RegisterScreen from "./src/screens/RegisterScreen";
 import { useAuthStore } from "./store/authStore";
 
 type RootStackParamList = {
@@ -57,7 +57,13 @@ function MainTabs() {
           };
           const iconSet = icons[route.name as keyof typeof icons];
           const iconName = focused ? iconSet.focused : iconSet.unfocused;
-          return <Ionicons name={iconName as any} size={size} color={color} />;
+          return (
+            <Ionicons
+              name={iconName as keyof typeof Ionicons.glyphMap}
+              size={size}
+              color={color}
+            />
+          );
         },
       })}
     >
