@@ -2,8 +2,10 @@
   "name": "frontend",
   "version": "1.0.0",
   "main": "index.ts",
+  "type": "module",
   "scripts": {
     "start": "expo start",
+    "dev": "node setLocalIp.js && expo start",
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web"
