@@ -2,10 +2,52 @@ import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuthStore } from "../../store/authStore";
+import { useTheme } from "../contexts/ThemeContext";
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const { user, logout } = useAuthStore();
+  const { colors } = useTheme();
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    content: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+      padding: 20,
+    },
+    welcome: {
+      fontSize: 24,
+      color: colors.icon,
+      marginBottom: 10,
+    },
+    info: {
+      fontSize: 16,
+      color: colors.text,
+      marginBottom: 20,
+    },
+    subtitle: {
+      fontSize: 14,
+      color: colors.textSecondary,
+      textAlign: "center",
+    },
+    logoutButton: {
+      backgroundColor: colors.accent,
+      margin: 20,
+      padding: 14,
+      borderRadius: 8,
+      alignItems: "center",
+    },
+    logoutText: {
+      color: colors.accentText,
+      fontSize: 16,
+      fontWeight: "bold",
+    },
+  });
 
   if (!user) return null;
 
@@ -25,43 +67,3 @@ export default function HomeScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#1a1a2e",
-  },
-  content: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
-  },
-  welcome: {
-    fontSize: 24,
-    color: "#00d9ff",
-    marginBottom: 10,
-  },
-  info: {
-    fontSize: 16,
-    color: "#fff",
-    marginBottom: 20,
-  },
-  subtitle: {
-    fontSize: 14,
-    color: "#888",
-    textAlign: "center",
-  },
-  logoutButton: {
-    backgroundColor: "#e94560",
-    margin: 20,
-    padding: 14,
-    borderRadius: 8,
-    alignItems: "center",
-  },
-  logoutText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-});
