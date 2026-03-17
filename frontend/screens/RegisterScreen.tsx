@@ -12,6 +12,7 @@ import {
 	TouchableOpacity,
 	View,
 } from "react-native";
+import { registerSchema } from "../validations/authValidation";
 
 const API_URL = "http://192.168.5.149:3000/api/auth";
 
@@ -21,7 +22,6 @@ interface RegisterScreenProps {
 }
 
 export default function RegisterScreen({
-	onRegisterSuccess,
 	onNavigateToLogin,
 }: RegisterScreenProps) {
 	const [username, setUsername] = useState("");
@@ -30,46 +30,31 @@ export default function RegisterScreen({
 	const [confirmPassword, setConfirmPassword] = useState("");
 	const [loading, setLoading] = useState(false);
 	const [passwordVisible, setPasswordVisible] = useState(false);
+	const [errors, setErrors] = useState<Record<string, string>>({});
+
+	const validate = () => {
+		const result = registerSchema.safeParse({
+			username,
+			email,
+			password,
+			confirmPassword,
+		});
+		if (!result.success) {
+			const fieldErrors: Record<string, string> = {};
+			result.error.issues.forEach((err) => {
+				if (err.path[0]) {
+					fieldErrors[err.path[0] as string] = err.message;
+				}
+			});
+			setErrors(fieldErrors);
+			return false;
+		}
+		setErrors({});
+		return true;
+	};
 
 	const handleRegister = async () => {
-		if (
-			!username.trim() ||
-			!email.trim() ||
-			!password.trim() ||
-			!confirmPassword.trim()
-		) {
-			Alert.alert("Erreur", "Veuillez remplir tous les champs");
-			return;
-		}
-
-		if (password !== confirmPassword) {
-			Alert.alert("Erreur", "Les mots de passe ne correspondent pas");
-			return;
-		}
-
-		if (password.length < 8) {
-			Alert.alert(
-				"Erreur",
-				"Le mot de passe doit contenir au moins 8 caractères",
-			);
-			return;
-		}
-
-		if (!/[A-Z]/.test(password)) {
-			Alert.alert(
-				"Erreur",
-				"Le mot de passe doit contenir au moins une majuscule",
-			);
-			return;
-		}
-
-		if (!/[0-9]/.test(password)) {
-			Alert.alert(
-				"Erreur",
-				"Le mot de passe doit contenir au moins un chiffre",
-			);
-			return;
-		}
+		if (!validate()) return;
 
 		setLoading(true);
 		try {
@@ -83,7 +68,6 @@ export default function RegisterScreen({
 
 			if (!response.ok) {
 				Alert.alert("Erreur", data.message || "Échec de l'inscription");
-				console.log("Registration error data:", data);
 				return;
 			}
 
@@ -92,7 +76,6 @@ export default function RegisterScreen({
 				"Compte créé ! Veuillez vérifier votre email pour activer votre compte.",
 				[{ text: "OK", onPress: onNavigateToLogin }],
 			);
-			console.log("Registration success data:", data);
 		} catch (error) {
 			console.error("Registration error:", error);
 			Alert.alert("Erreur", "Impossible de se connecter au serveur");
@@ -121,7 +104,7 @@ export default function RegisterScreen({
 					<View style={styles.inputContainer}>
 						<Text style={styles.label}>Nom d'utilisateur</Text>
 						<TextInput
-							style={styles.input}
+							style={[styles.input, errors.username && styles.inputError]}
 							value={username}
 							onChangeText={setUsername}
 							placeholder="Pseudo"
@@ -129,12 +112,15 @@ export default function RegisterScreen({
 							autoCapitalize="none"
 							autoCorrect={false}
 						/>
+						{errors.username && (
+							<Text style={styles.errorText}>{errors.username}</Text>
+						)}
 					</View>
 
 					<View style={styles.inputContainer}>
 						<Text style={styles.label}>Email</Text>
 						<TextInput
-							style={styles.input}
+							style={[styles.input, errors.email && styles.inputError]}
 							value={email}
 							onChangeText={setEmail}
 							placeholder="exemple@email.com"
@@ -143,12 +129,16 @@ export default function RegisterScreen({
 							autoCapitalize="none"
 							autoCorrect={false}
 						/>
+						{errors.email && (
+							<Text style={styles.errorText}>{errors.email}</Text>
+						)}
 					</View>
 
 					<View style={styles.inputContainer}>
 						<Text style={styles.label}>Mot de passe</Text>
-
-						<View style={styles.passwordRow}>
+						<View
+							style={[styles.passwordRow, errors.password && styles.inputError]}
+						>
 							<TextInput
 								style={styles.passwordInput}
 								value={password}
@@ -164,11 +154,19 @@ export default function RegisterScreen({
 								<Text>{passwordVisible ? "🙈" : "👁️"}</Text>
 							</Pressable>
 						</View>
+						{errors.password && (
+							<Text style={styles.errorText}>{errors.password}</Text>
+						)}
 					</View>
 
 					<View style={styles.inputContainer}>
 						<Text style={styles.label}>Confirmer le mot de passe</Text>
-						<View style={styles.passwordRow}>
+						<View
+							style={[
+								styles.passwordRow,
+								errors.confirmPassword && styles.inputError,
+							]}
+						>
 							<TextInput
 								style={styles.passwordInput}
 								value={confirmPassword}
@@ -184,6 +182,9 @@ export default function RegisterScreen({
 								<Text>{passwordVisible ? "🙈" : "👁️"}</Text>
 							</Pressable>
 						</View>
+						{errors.confirmPassword && (
+							<Text style={styles.errorText}>{errors.confirmPassword}</Text>
+						)}
 					</View>
 
 					<TouchableOpacity
@@ -252,6 +253,18 @@ const styles = StyleSheet.create({
 		color: "#ccc",
 		marginBottom: 8,
 	},
+	input: {
+		backgroundColor: "#0f3460",
+		borderRadius: 8,
+		padding: 14,
+		color: "#fff",
+		fontSize: 16,
+		borderWidth: 1,
+		borderColor: "#1a4a7a",
+	},
+	inputError: {
+		borderColor: "#e94560",
+	},
 	passwordRow: {
 		flexDirection: "row",
 		alignItems: "center",
@@ -266,18 +279,14 @@ const styles = StyleSheet.create({
 		color: "#fff",
 		fontSize: 16,
 	},
-	input: {
-		backgroundColor: "#0f3460",
-		borderRadius: 8,
-		padding: 14,
-		color: "#fff",
-		fontSize: 16,
-		borderWidth: 1,
-		borderColor: "#1a4a7a",
-	},
 	eyeButton: {
 		paddingHorizontal: 12,
 		paddingVertical: 8,
+	},
+	errorText: {
+		color: "#e94560",
+		fontSize: 12,
+		marginTop: 4,
 	},
 	button: {
 		backgroundColor: "#00d9ff",

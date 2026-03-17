@@ -1,31 +1,25 @@
 import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useAuthStore } from "../store/authStore";
 
-interface HomeScreenProps {
-	username: string;
-	email: string;
-	onLogout: () => void;
-}
-
-export default function HomeScreen({
-	username,
-	email,
-	onLogout,
-}: HomeScreenProps) {
+export default function HomeScreen() {
 	const insets = useSafeAreaInsets();
+	const { user, logout } = useAuthStore();
+
+	if (!user) return null;
 
 	return (
 		<View style={[styles.container, { paddingTop: insets.top }]}>
 			<StatusBar style="auto" />
 			<View style={styles.content}>
-				<Text style={styles.welcome}>Bienvenue, {username} !</Text>
-				<Text style={styles.info}>Email: {email}</Text>
+				<Text style={styles.welcome}>Bienvenue, {user.username} !</Text>
+				<Text style={styles.info}>Email: {user.email}</Text>
 				<Text style={styles.subtitle}>
 					Cette zone est réservée aux membres connectés
 				</Text>
 			</View>
-			<TouchableOpacity style={styles.logoutButton} onPress={onLogout}>
+			<TouchableOpacity style={styles.logoutButton} onPress={logout}>
 				<Text style={styles.logoutText}>Se déconnecter</Text>
 			</TouchableOpacity>
 		</View>

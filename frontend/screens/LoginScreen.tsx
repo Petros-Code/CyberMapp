@@ -12,31 +12,44 @@ import {
 	TouchableOpacity,
 	View,
 } from "react-native";
+import { useAuthStore } from "../store/authStore";
+import { loginSchema } from "../validations/authValidation";
 
 const API_URL = "http://192.168.5.149:3000/api/auth";
 
 interface LoginScreenProps {
-	onLoginSuccess: (
-		token: string,
-		user: { id: number; username: string; email: string },
-	) => void;
 	onNavigateToRegister: () => void;
 }
 
 export default function LoginScreen({
-	onLoginSuccess,
 	onNavigateToRegister,
 }: LoginScreenProps) {
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [loading, setLoading] = useState(false);
 	const [passwordVisible, setPasswordVisible] = useState(false);
+	const [errors, setErrors] = useState<Record<string, string>>({});
+	const setAuth = useAuthStore((state) => state.setAuth);
+
+	const validate = () => {
+		const result = loginSchema.safeParse({ email, password });
+		if (!result.success) {
+			const fieldErrors: Record<string, string> = {};
+			result.error.issues.forEach((err) => {
+				if (err.path[0]) {
+					fieldErrors[err.path[0] as string] = err.message;
+				}
+			});
+			console.log("Validation errors:", fieldErrors);
+			setErrors(fieldErrors);
+			return false;
+		}
+		setErrors({});
+		return true;
+	};
 
 	const handleLogin = async () => {
-		if (!email.trim() || !password.trim()) {
-			Alert.alert("Erreur", "Veuillez remplir tous les champs");
-			return;
-		}
+		if (!validate()) return;
 
 		setLoading(true);
 		try {
@@ -53,8 +66,9 @@ export default function LoginScreen({
 				return;
 			}
 
-			onLoginSuccess(data.token, data.user);
-		} catch (_error) {
+			await setAuth(data.token, data.user);
+		} catch (error) {
+			console.error("Login error:", error);
 			Alert.alert("Erreur", "Impossible de se connecter au serveur");
 		} finally {
 			setLoading(false);
@@ -81,7 +95,7 @@ export default function LoginScreen({
 					<View style={styles.inputContainer}>
 						<Text style={styles.label}>Email</Text>
 						<TextInput
-							style={styles.input}
+							style={[styles.input, errors.email && styles.inputError]}
 							value={email}
 							onChangeText={setEmail}
 							placeholder="exemple@email.com"
@@ -90,11 +104,16 @@ export default function LoginScreen({
 							autoCapitalize="none"
 							autoCorrect={false}
 						/>
+						{errors.email && (
+							<Text style={styles.errorText}>{errors.email}</Text>
+						)}
 					</View>
 
 					<View style={styles.inputContainer}>
 						<Text style={styles.label}>Mot de passe</Text>
-						<View style={styles.passwordRow}>
+						<View
+							style={[styles.passwordRow, errors.password && styles.inputError]}
+						>
 							<TextInput
 								style={styles.passwordInput}
 								value={password}
@@ -110,6 +129,9 @@ export default function LoginScreen({
 								<Text>{passwordVisible ? "🙈" : "👁️"}</Text>
 							</Pressable>
 						</View>
+						{errors.password && (
+							<Text style={styles.errorText}>{errors.password}</Text>
+						)}
 					</View>
 
 					<TouchableOpacity
@@ -187,6 +209,9 @@ const styles = StyleSheet.create({
 		borderWidth: 1,
 		borderColor: "#1a4a7a",
 	},
+	inputError: {
+		borderColor: "#e94560",
+	},
 	passwordRow: {
 		flexDirection: "row",
 		alignItems: "center",
@@ -204,6 +229,11 @@ const styles = StyleSheet.create({
 	eyeButton: {
 		paddingHorizontal: 12,
 		paddingVertical: 8,
+	},
+	errorText: {
+		color: "#e94560",
+		fontSize: 12,
+		marginTop: 4,
 	},
 	button: {
 		backgroundColor: "#00d9ff",
