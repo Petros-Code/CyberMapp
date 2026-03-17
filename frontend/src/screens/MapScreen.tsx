@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 import MapView, { Marker } from "react-native-maps";
-import { COLORS, FONT_SIZES } from "../constants";
+import { FONT_SIZES } from "../constants";
+import { useTheme } from "../contexts/ThemeContext";
 import { mapController } from "../controllers/MapController";
 import type { UserOnMap } from "../types";
 
@@ -126,10 +127,147 @@ const AUBERGINE_STYLE = [
   },
 ];
 
+const LIGHT_STYLE = [
+  { elementType: "geometry", stylers: [{ color: "#f5f5f5" }] },
+  { elementType: "labels.text.fill", stylers: [{ color: "#333333" }] },
+  { elementType: "labels.text.stroke", stylers: [{ color: "#ffffff" }] },
+  {
+    featureType: "administrative.country",
+    elementType: "geometry.stroke",
+    stylers: [{ color: "#cccccc" }],
+  },
+  {
+    featureType: "administrative.land_parcel",
+    elementType: "labels.text.fill",
+    stylers: [{ color: "#666666" }],
+  },
+  {
+    featureType: "administrative.province",
+    elementType: "geometry.stroke",
+    stylers: [{ color: "#cccccc" }],
+  },
+  {
+    featureType: "landscape.man_made",
+    elementType: "geometry.stroke",
+    stylers: [{ color: "#e0e0e0" }],
+  },
+  {
+    featureType: "landscape.natural",
+    elementType: "geometry",
+    stylers: [{ color: "#e8f5e8" }],
+  },
+  {
+    featureType: "poi",
+    elementType: "geometry",
+    stylers: [{ color: "#f0f0f0" }],
+  },
+  {
+    featureType: "poi",
+    elementType: "labels.text.fill",
+    stylers: [{ color: "#666666" }],
+  },
+  {
+    featureType: "poi",
+    elementType: "labels.text.stroke",
+    stylers: [{ color: "#ffffff" }],
+  },
+  {
+    featureType: "poi.park",
+    elementType: "geometry.fill",
+    stylers: [{ color: "#c8e6c9" }],
+  },
+  {
+    featureType: "poi.park",
+    elementType: "labels.text.fill",
+    stylers: [{ color: "#2e7d32" }],
+  },
+  {
+    featureType: "road",
+    elementType: "geometry",
+    stylers: [{ color: "#ffffff" }],
+  },
+  {
+    featureType: "road",
+    elementType: "labels.text.fill",
+    stylers: [{ color: "#333333" }],
+  },
+  {
+    featureType: "road",
+    elementType: "labels.text.stroke",
+    stylers: [{ color: "#ffffff" }],
+  },
+  {
+    featureType: "road.highway",
+    elementType: "geometry",
+    stylers: [{ color: "#e0e0e0" }],
+  },
+  {
+    featureType: "road.highway",
+    elementType: "geometry.stroke",
+    stylers: [{ color: "#cccccc" }],
+  },
+  {
+    featureType: "road.highway",
+    elementType: "labels.text.fill",
+    stylers: [{ color: "#333333" }],
+  },
+  {
+    featureType: "road.highway",
+    elementType: "labels.text.stroke",
+    stylers: [{ color: "#ffffff" }],
+  },
+  {
+    featureType: "transit",
+    elementType: "labels.text.fill",
+    stylers: [{ color: "#333333" }],
+  },
+  {
+    featureType: "transit",
+    elementType: "labels.text.stroke",
+    stylers: [{ color: "#ffffff" }],
+  },
+  {
+    featureType: "transit.line",
+    elementType: "geometry.fill",
+    stylers: [{ color: "#e0e0e0" }],
+  },
+  {
+    featureType: "transit.station",
+    elementType: "geometry",
+    stylers: [{ color: "#f5f5f5" }],
+  },
+  {
+    featureType: "water",
+    elementType: "geometry",
+    stylers: [{ color: "#b3e5fc" }],
+  },
+  {
+    featureType: "water",
+    elementType: "labels.text.fill",
+    stylers: [{ color: "#0277bd" }],
+  },
+];
+
 export default function MapScreen() {
   const [users, setUsers] = useState<UserOnMap[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { colors, isDark } = useTheme();
+
+  const styles = StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.background },
+    map: { flex: 1 },
+    centered: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+      backgroundColor: colors.background,
+    },
+    errorText: {
+      color: colors.accent,
+      fontSize: FONT_SIZES.md,
+    },
+  });
 
   const loadMap = useCallback(async () => {
     try {
@@ -155,7 +293,7 @@ export default function MapScreen() {
   if (loading) {
     return (
       <View style={styles.centered}>
-        <ActivityIndicator color={COLORS.primary} size="large" />
+        <ActivityIndicator color={colors.accent} size="large" />
       </View>
     );
   }
@@ -172,7 +310,7 @@ export default function MapScreen() {
     <View style={styles.container}>
       <MapView
         style={styles.map}
-        customMapStyle={AUBERGINE_STYLE}
+        customMapStyle={isDark ? AUBERGINE_STYLE : LIGHT_STYLE}
         initialRegion={{
           latitude: Number(users[0]?.latitude) || 48.8566,
           longitude: Number(users[0]?.longitude) || 2.3522,
@@ -194,18 +332,3 @@ export default function MapScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1 },
-  map: { flex: 1 },
-  centered: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: COLORS.background,
-  },
-  errorText: {
-    color: COLORS.error,
-    fontSize: FONT_SIZES.md,
-  },
-});
