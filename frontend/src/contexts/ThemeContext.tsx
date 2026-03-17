@@ -1,6 +1,12 @@
-import type React from "react";
-import { createContext, useEffect, type ReactNode, useContext, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import type React from "react";
+import {
+  createContext,
+  type ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 
 type Theme = "dark" | "light";
 
@@ -92,7 +98,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   const toggleTheme = async () => {
     const newTheme = theme === "dark" ? "light" : "dark";
     setTheme(newTheme);
-    
+
     try {
       await AsyncStorage.setItem("@theme", newTheme);
     } catch (error) {
