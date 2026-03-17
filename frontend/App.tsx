@@ -4,13 +4,13 @@ import { SafeAreaProvider } from 'react-native-safe-area-context'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import MapScreen from './src/views/MapScreen'
 
-const DEV_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTAsImVtYWlsIjoia2lqb244NTczOUBmYXh6dS5jb20iLCJpYXQiOjE3NzM2NzA4MDQsImV4cCI6MTc3MzY3NDQwNH0.v15V3J0SG8KC6GaEjChq1BBBDvw-J8CJpmOBDfPoNMQ'
+const DEV_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTAsImVtYWlsIjoia2lqb244NTczOUBmYXh6dS5jb20iLCJpYXQiOjE3NzM3NDAyODQsImV4cCI6MTc3Mzc0Mzg4NH0.C8ZgVvAtaBp3i8yE3vS678ok_Ap2HFzRVk9MlFsFzHE'
 
 export default function App() {
   const [ready, setReady] = useState(false)
 
   useEffect(() => {
-    AsyncStorage.setItem('auth_token', DEV_TOKEN).then(() => setReady(true))
+    AsyncStorage.setItem('auth_token', DEV_TOKEN).finally(() => setReady(true))
   }, [])
 
   if (!ready) return null
