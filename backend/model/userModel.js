@@ -32,6 +32,15 @@ export const findUserById = async (id) => {
   return { ...rows[0], username: decrypt(rows[0].username) }
 }
 
+// Mettre à jour l'avatar d'un user
+export const updateAvatarUrl = async (id, avatar_url) => {
+  const [result] = await pool.execute(
+    `UPDATE users SET avatar_url = ? WHERE id = ?`,
+    [avatar_url, id]
+  )
+  return result
+}
+
 // vérifier un user via smtp mail
 export const verifyUserToken = async (token) => {
     const [result] = await pool.execute(

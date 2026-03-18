@@ -286,7 +286,7 @@ export default function MapScreen() {
 
   useEffect(() => {
     loadMap();
-    const interval = setInterval(loadMap, 60000);
+    const interval = setInterval(loadMap, 300000);
     return () => clearInterval(interval);
   }, [loadMap]);
 
