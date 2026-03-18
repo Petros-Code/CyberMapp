@@ -40,7 +40,7 @@ function AppNavigator() {
         {token ? (
           <Stack.Screen name="Main" component={MainTabs} />
         ) : (
-          <Stack.Navigator>
+          <>
             <Stack.Screen name="Login">
               {({ navigation }) => (
                 <LoginScreen
@@ -56,7 +56,7 @@ function AppNavigator() {
                 />
               )}
             </Stack.Screen>
-          </Stack.Navigator>
+          </>
         )}
       </Stack.Navigator>
     </SafeAreaView>
