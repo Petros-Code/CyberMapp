@@ -5,6 +5,7 @@ import rateLimit from "express-rate-limit";
 import dotenv from "dotenv";
 import authRoutes from "./routes/authRoutes.js";
 import locationRoutes from "./routes/locationRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
 
 dotenv.config();
 
@@ -40,6 +41,7 @@ app.get("/", (req, res) => {
 
 app.use("/api/auth", authRoutes);
 app.use("/api/location", locationRoutes);
+app.use("/api/users", userRoutes);
 
 // ─── 404 ──────────────────────────────────────────────────────────────────────
 app.use((req, res) => {

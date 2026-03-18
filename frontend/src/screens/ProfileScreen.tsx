@@ -1,12 +1,67 @@
 import { Ionicons } from "@expo/vector-icons";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import * as ImagePicker from "expo-image-picker";
+import React, { useState } from "react";
+import {
+  ActivityIndicator,
+  Alert,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuthStore } from "../../store/authStore";
 import { useTheme } from "../contexts/ThemeContext";
 
+const API_URL = process.env.EXPO_PUBLIC_API_URL;
+
 const ProfileScreen = () => {
-  const { user, logout } = useAuthStore();
+  const { user, logout, updateAvatar, token } = useAuthStore();
   const { colors } = useTheme();
+  const [uploading, setUploading] = useState(false);
+
+  const handlePickAvatar = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== "granted") {
+      Alert.alert("Permission refusée", "Autorise l'accès à ta galerie.");
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: "images",
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.8,
+    });
+
+    if (result.canceled) return;
+
+    const asset = result.assets[0];
+    const formData = new FormData();
+    formData.append("avatar", {
+      uri: asset.uri,
+      type: "image/jpeg",
+      name: "avatar.jpg",
+    } as any);
+
+    setUploading(true);
+    try {
+      const response = await fetch(`${API_URL}/api/users/avatar`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message);
+      await updateAvatar(data.avatar_url);
+      Alert.alert("Succès", "Photo de profil mise à jour !");
+    } catch (err) {
+      Alert.alert("Erreur", "Impossible d'uploader la photo.");
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const styles = StyleSheet.create({
     container: {
@@ -104,6 +159,19 @@ const ProfileScreen = () => {
       fontWeight: "bold",
       marginLeft: 10,
     },
+    avatarImage: {
+      width: 80,
+      height: 80,
+      borderRadius: 40,
+      marginBottom: 15,
+    },
+    uploadingOverlay: {
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+    },
   });
 
   if (!user) return null;
@@ -121,9 +189,18 @@ const ProfileScreen = () => {
       <View style={styles.content}>
         <View>
           <View style={styles.profileSection}>
-            <View style={styles.avatar}>
-              <Text style={styles.avatarText}>{getInitial(user.username)}</Text>
-            </View>
+            <TouchableOpacity onPress={handlePickAvatar} disabled={uploading}>
+              {user.avatar_url ? (
+                <Image source={{ uri: user.avatar_url }} style={styles.avatarImage} />
+              ) : (
+                <View style={styles.avatar}>
+                  <Text style={styles.avatarText}>{getInitial(user.username)}</Text>
+                </View>
+              )}
+              {uploading && (
+                <ActivityIndicator style={styles.uploadingOverlay} color={colors.accent} />
+              )}
+            </TouchableOpacity>
             <Text style={styles.username}>{user.username}</Text>
             <Text style={styles.email}>{user.email}</Text>
           </View>
