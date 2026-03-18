@@ -5,6 +5,7 @@ interface User {
   id: number
   username: string
   email: string
+  avatar_url?: string | null
 }
 
 interface AuthState {
@@ -12,6 +13,7 @@ interface AuthState {
   user: User | null
   isLoading: boolean
   setAuth: (token: string, user: User) => Promise<void>
+  updateAvatar: (avatar_url: string) => Promise<void>
   logout: () => Promise<void>
   loadSession: () => Promise<void>
 }
@@ -28,6 +30,14 @@ export const useAuthStore = create<AuthState>((set) => ({
     await AsyncStorage.setItem(TOKEN_KEY, token)
     await AsyncStorage.setItem(USER_KEY, JSON.stringify(user))
     set({ token, user })
+  },
+
+  updateAvatar: async (avatar_url) => {
+    set((state) => {
+      const updatedUser = state.user ? { ...state.user, avatar_url } : null
+      if (updatedUser) AsyncStorage.setItem(USER_KEY, JSON.stringify(updatedUser))
+      return { user: updatedUser }
+    })
   },
 
   logout: async () => {

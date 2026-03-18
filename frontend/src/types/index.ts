@@ -4,4 +4,5 @@ export interface UserOnMap {
   latitude: number
   longitude: number
   updated_at: string
+  avatar_url?: string | null
 }
