@@ -328,10 +328,12 @@ export default function MapScreen() {
             title={user.username}
           >
             {user.avatar_url ? (
-              <Image
-                source={{ uri: user.avatar_url }}
-                style={markerStyles.avatar}
-              />
+              <View style={markerStyles.avatarWrapper}>
+                <Image
+                  source={{ uri: user.avatar_url }}
+                  style={markerStyles.avatarImage}
+                />
+              </View>
             ) : (
               <View style={markerStyles.fallback}>
                 <Text style={markerStyles.fallbackText}>
@@ -347,12 +349,17 @@ export default function MapScreen() {
 }
 
 const markerStyles = StyleSheet.create({
-  avatar: {
+  avatarWrapper: {
     width: 40,
     height: 40,
     borderRadius: 20,
     borderWidth: 2,
     borderColor: "#00d9ff",
+    overflow: "hidden",
+  },
+  avatarImage: {
+    width: 40,
+    height: 40,
   },
   fallback: {
     width: 40,
