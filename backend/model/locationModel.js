@@ -51,7 +51,7 @@ export const deleteLocationByUserId = async (userId) => {
 export const findAllLocations = async () => {
   try {
     const [rows] = await pool.query(`
-      SELECT l.user_id, l.latitude, l.longitude, l.updated_at, u.username
+      SELECT l.user_id, l.latitude, l.longitude, l.updated_at, u.username, u.avatar_url
       FROM locations l
       JOIN users u ON l.user_id = u.id
     `);

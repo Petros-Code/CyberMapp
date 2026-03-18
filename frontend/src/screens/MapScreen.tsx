@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Image, StyleSheet, Text, View } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import { FONT_SIZES } from "../constants";
 import { useTheme } from "../contexts/ThemeContext";
@@ -326,9 +326,47 @@ export default function MapScreen() {
               longitude: Number(user.longitude),
             }}
             title={user.username}
-          />
+          >
+            {user.avatar_url ? (
+              <Image
+                source={{ uri: user.avatar_url }}
+                style={markerStyles.avatar}
+              />
+            ) : (
+              <View style={markerStyles.fallback}>
+                <Text style={markerStyles.fallbackText}>
+                  {user.username.charAt(0).toUpperCase()}
+                </Text>
+              </View>
+            )}
+          </Marker>
         ))}
       </MapView>
     </View>
   );
 }
+
+const markerStyles = StyleSheet.create({
+  avatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    borderWidth: 2,
+    borderColor: "#00d9ff",
+  },
+  fallback: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#00d9ff",
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 2,
+    borderColor: "#fff",
+  },
+  fallbackText: {
+    color: "#1a1a2e",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+});
